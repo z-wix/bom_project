@@ -1,0 +1,129 @@
+---
+title: "Untitled"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+
+library(flexdashboard)
+library(shiny)
+library(tidyverse)
+library(tidytext)
+library(textdata)
+library(rvest)
+
+```
+
+```{r}
+# list of books 
+books <- c("1 Nephi", "2 Nephi", "Jacob", "Enos", "Jarom", "Omni", "Words of Mormon", "Mosiah", "Alma", "Helaman", "3 Nephi", "4 Nephi", "Mormon", "Ether", "Moroni")
+
+booklist <- tibble(books) %>% 
+  mutate(
+    num_chapters = as.vector(c(22, 33, 7, 1, 1, 1, 1, 29, 63, 16, 30, 1, 9, 15, 10))
+  )
+
+
+```
+
+```{r preprocessing}
+
+# get vector of chapters in 1 Nephi
+chapters <- as.vector(1:22)
+
+# Web Scrapping
+for (i in chapters) {
+  # Web scrap
+  text <- read_html(paste0("https://www.churchofjesuschrist.org/study/scriptures/bofm/1-ne/", i, "?lang=eng")) %>%
+    html_nodes("#content") %>% # the part of the website you want, Selector Gadget to find out the node name
+    html_text() %>% 
+    str_split("(\\.|\\:)(\\d|\\d\\d)\\s") %>%
+    unlist()
+  # Tidy Text
+  x <- tibble(text) %>% 
+    mutate(
+      verse = row_number(),
+      chapter = i
+    ) %>% 
+    unnest_tokens(word, text) %>% 
+    anti_join(stop_words)
+  # if first iteration
+  if(i == 1) {
+    tidy_text <- x
+  }
+  # Combine the tibbles
+  tidy_text <- rbind(tidy_text, x)
+}
+
+```
+
+Sidebar {.sidebar}
+-----------------------------------------------------------------------
+
+```{r}
+
+selectInput(
+  "book",
+  label = "Select Book",
+  choices = books,
+  selected = "1 Nephi"
+)
+
+selectInput(
+  "chp",
+  label = "Select Chapter",
+  choices = c(chapters, "all"),
+  selected = "all"
+)
+
+
+```
+
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Top Words Used
+
+```{r}
+tidy_text %>%
+  filter(chapter == 1) %>% 
+  count(word) %>%
+  mutate(word = fct_reorder(word, n)) %>%
+  filter(n > 8) %>%
+  ggplot(aes(x = word, y = n)) +
+  geom_col() + 
+  coord_flip()
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Chart B
+
+```{r}
+tidy_text %>% 
+  filter(chapter == 1) %>% 
+  inner_join(get_sentiments("bing")) %>% 
+  count(verse, sentiment) %>% 
+  pivot_wider(
+    names_from = sentiment,
+    values_from = n,
+    values_fill = list(n = 0)
+  ) %>% 
+  mutate(sentiment = positive - negative) %>% 
+  ggplot(aes(verse, sentiment)) +
+  geom_col()
+
+```
+
+### Chart C
+
+```{r}
+
+```
+
