@@ -35,24 +35,20 @@ booklist <- tibble(books) %>%
 
 # Loop thru book_codes and chapters to scrape data
 
-# practice using the book codes
-for (j in seq(booklist$book_code)) {
-  code <- booklist$book_code[j]
-  x <- paste0("this is the book code", code)
-  print(x)
-}
-
-# practice using chapters
-for (j in seq(booklist$num_chapters)) {
-  chapter <- booklist$num_chapters[j]
-  x <- paste0("this is book has ", chapter, " chapter(s)")
-  print(x)
-  print(1:chapter)
-}
-
-for (i in seq(chapter)) {
-  print(i)
-}
+# # practice using the book codes
+# for (j in seq(booklist$book_code)) {
+#   code <- booklist$book_code[j]
+#   x <- paste0("this is the book code", code)
+#   print(x)
+# }
+# 
+# # practice using chapters
+# for (j in seq(booklist$num_chapters)) {
+#   chapter <- booklist$num_chapters[j]
+#   x <- paste0("this is book has ", chapter, " chapter(s)")
+#   print(x)
+#   print(1:chapter)
+# }
 
 for (i in seq(booklist$book_code)) {
   # get book code
@@ -72,8 +68,9 @@ for (i in seq(booklist$book_code)) {
     # Tidy Text
     y <- tibble(text) %>% 
       mutate(
-        verse = row_number(),
-        chapter = j
+        book_name = code,
+        chapter = j,
+        verse = row_number()
       ) %>% 
       unnest_tokens(word, text) %>% 
       anti_join(stop_words)
@@ -87,33 +84,34 @@ for (i in seq(booklist$book_code)) {
 
 }
 
+write_csv(tidy_text, "data/bom_tidy.csv")
 
-# get vector of chapters in 1 Nephi
-chapters <- as.vector(1:22)
-
-# Web Scrapping
-for (i in chapters) {
-  # Web scrap
-  text <- read_html(paste0("https://www.churchofjesuschrist.org/study/scriptures/bofm/1-ne/", i, "?lang=eng")) %>%
-    html_nodes("#content") %>% # the part of the website you want, Selector Gadget to find out the node name
-    html_text() %>% 
-    str_split("(\\.|\\:)(\\d|\\d\\d)\\s") %>%
-    unlist()
-  # Tidy Text
-  x <- tibble(text) %>% 
-    mutate(
-      verse = row_number(),
-      chapter = i
-    ) %>% 
-    unnest_tokens(word, text) %>% 
-    anti_join(stop_words)
-  # if first iteration
-  if(i == 1) {
-    tidy_text <- x
-  }
-  # Combine the tibbles
-  tidy_text <- rbind(tidy_text, x)
-}
+# # get vector of chapters in 1 Nephi
+# chapters <- as.vector(1:22)
+# 
+# # Web Scrapping
+# for (i in chapters) {
+#   # Web scrap
+#   text <- read_html(paste0("https://www.churchofjesuschrist.org/study/scriptures/bofm/1-ne/", i, "?lang=eng")) %>%
+#     html_nodes("#content") %>% # the part of the website you want, Selector Gadget to find out the node name
+#     html_text() %>% 
+#     str_split("(\\.|\\:)(\\d|\\d\\d)\\s") %>%
+#     unlist()
+#   # Tidy Text
+#   x <- tibble(text) %>% 
+#     mutate(
+#       verse = row_number(),
+#       chapter = i
+#     ) %>% 
+#     unnest_tokens(word, text) %>% 
+#     anti_join(stop_words)
+#   # if first iteration
+#   if(i == 1) {
+#     tidy_text <- x
+#   }
+#   # Combine the tibbles
+#   tidy_text <- rbind(tidy_text, x)
+# }
 
 ```
 
