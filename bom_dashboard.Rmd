@@ -101,7 +101,13 @@ tidy_text <- read_csv("data/bom_tidy.csv") %>%
 Sidebar {.sidebar}
 =======================================================================
 
+### Welcome
+
 __Explore your favorite chapters of the Book of Mormon and see what words get used the most and the overall sentiment of books and chapters using the inputs below.__
+
+******
+
+### User Inputs
 
 ```{r}
 
@@ -125,7 +131,7 @@ renderUI({
 
 sliderInput(
   "bktop",
-  label = "Choose # of top words (book level)",
+  label = "Number of Top Words (book)",
   min = 5,
   max = 15,
   value = 10,
@@ -136,7 +142,7 @@ sliderInput(
 
 sliderInput(
   "chptop",
-  label = "Choose # of top words (chapter level)",
+  label = "Number of Top Words (chapter)",
   min = 5,
   max = 15,
   value = 10,
@@ -147,7 +153,11 @@ sliderInput(
 
 ```
 
-All text data is scrapped from www.churchofjesuschrist.org
+_For visualization purposes only a range of 5-15 is used for selecting the top number of words._
+
+******
+
+All text data is scrapped from [The Church of Jesus Chirst of Latter-day Saints](https://www.churchofjesuschrist.org/study/scriptures/bofm?lang=eng)
 
 Text Analysis
 =======================================================================
