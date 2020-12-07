@@ -1,0 +1,12 @@
+name: bom_dashboard
+title: bom_dashboard
+username:
+account: zwix14
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3363460
+bundleId: 3952829
+url: https://zwix14.shinyapps.io/bom_dashboard/
+when: 1607307510.81723
+asMultiple: FALSE
+asStatic: FALSE
